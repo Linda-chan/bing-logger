@@ -1,4 +1,4 @@
-Bing Logger
+﻿Bing Logger
 ===========
 
 ...
