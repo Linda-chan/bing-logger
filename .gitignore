@@ -2,6 +2,7 @@
 Backups/
 Test/
 Misc/
+Rejected/
 
 # Service files...
 git*.sh
