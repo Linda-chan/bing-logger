@@ -1,0 +1,18 @@
+# My entries...
+Backups/
+Test/
+Misc/
+
+# Service files...
+git*.sh
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+photothumb.db
+
+# Folder config file
+Desktop.ini
+
+# Windows shortcuts
+*.lnk
