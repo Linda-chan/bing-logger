@@ -1,4 +1,4 @@
-#!/usr/bin/env run_ruby_script_in_rvm
+#!/usr/local/bin/run_ruby_script_in_rvm
 
 # Documentation:
 # https://ruby-doc.org/stdlib-2.2.0/libdoc/net/http/rdoc/Net/HTTP.html

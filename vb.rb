@@ -1,4 +1,4 @@
-#!/usr/bin/env run_ruby_script_in_rvm
+#!/usr/local/bin/run_ruby_script_in_rvm
 
 require "unicode"
 
