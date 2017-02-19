@@ -92,7 +92,7 @@ module VB
   # Не знаю, какое название придумать =_=
   #------------------------------------------------------------------
   def VB.smid(text, newtext, start, length = -1)
-    # Если текст нам не ередан, то и возвращать нечего.
+    # Если текст нам не передан, то и возвращать нечего.
     if text.empty? then
       return ""
     end
@@ -361,7 +361,7 @@ module VB
     end
     
     # Создаём пустой массив, который будем заполнять...
-    arr = Array.new()
+    arr = []
     
     # Если у нас текстовое сравнение, то даункейсим разделитель 
     # и создаём копию строки в отдельной переменной. В копии будем 
@@ -496,14 +496,7 @@ module VB
   # Function Join(SourceArray, [Delimiter]) As String
   #------------------------------------------------------------------
   def VB.join(sourcearray, delimiter = " ")
-    txt = ""
-    sourcearray.each_with_index do |item, index|
-      txt << item.to_s
-      if index < (sourcearray.length - 1) then
-        txt << delimiter.to_s
-      end
-    end
-    return txt
+    return sourcearray.join(delimiter)
   end
   
   #------------------------------------------------------------------
