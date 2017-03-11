@@ -130,11 +130,16 @@
 #   [-] Перестало определяться описание картинки.
 # 
 # • 19.02.2017
-#   [-] Добавлена Ruby-версия, работающая как под Windows, так и под 
+#   [-] Добавлена Ruby версия, работающая как под Windows, так и под 
 #       Linux.
 #   
 # • 4.03.2017
 #   [+] Поправлен вывод Usage в VBScript версиях.
+#   
+# • 11.03.2017
+#   [+] В Ruby версию скрипта добавила функцию для форматирования 
+#       сообщения об ошибке на случай проблем с кодировкой. Теперь 
+#       сообщение об ошибке должно стать ещё красивее!
 # 
 #====================================================================
 # Маленький копирайт
@@ -238,6 +243,42 @@ def get_path_from_arguments()
 end
 
 #====================================================================
+# Ёбаный стыд! Из-за того, что ошибки сокетов в Windows 
+# на русском языке, а Руби до сих пор не знает, что где-то там 
+# в Windows NT скрыто юникодное API, при попытке вывести 
+# сообщение об ошибке возникает такая ошибка:
+# 
+# in `rescue in get_page_by_url':
+# incompatible character encodings: UTF-8 and ASCII-8BIT 
+# (Encoding::CompatibilityError)
+# 
+# У меня нет других вариантов, почему строка с ошибкой 
+# получается хрен знает в какой кодировке и в консоль 
+# попадает (если не отловить ошибку запроса) с крякозябрами.
+#====================================================================
+def get_error_message(e, default_error_text = "Unknown error")
+  txt = "[#{ e.class.to_s }] #{ e.message }"
+  if not Encoding.compatible?(Encoding::UTF_8, txt) then
+    begin
+      txt = "[#{ e.class.to_s }] #{ e.message.force_encoding("Windows-1251").encode("UTF-8") }"
+    rescue
+      txt = "[#{ e.class.to_s }] ***Invalid error message***"
+      if not Encoding.compatible?(Encoding::UTF_8, txt) then
+        txt = default_error_text
+      end
+    end
+    if not Encoding.compatible?(Encoding::UTF_8, txt) then
+      txt = "[#{ e.class.to_s }] ***Invalid error message***"
+      if not Encoding.compatible?(Encoding::UTF_8, txt) then
+        txt = default_error_text
+      end
+    end
+  end
+  
+  return txt
+end
+
+#====================================================================
 def get_page_by_url(target_url, ua, error_message, redirect_limit = 10)
   # Это для редиректов - они тут чего-то автоматом не делаются.
   # При каждом повторном вызове функции, параметр уменьшается 
@@ -300,24 +341,8 @@ def get_page_by_url(target_url, ua, error_message, redirect_limit = 10)
       https.request(req)
     end
   rescue Exception => e
-    # Ёбаный стыд! Из-за того, что ошибки сокетов в Windows 
-    # на русском языке, а Руби до сих пор не знает, что где-то там 
-    # в Windows NT скрыто юникодное API, при попытке вывести 
-    # сообщение об ошибке возникает такая ошибка:
-    # 
-    # in `rescue in get_page_by_url':
-    # incompatible character encodings: UTF-8 and ASCII-8BIT 
-    # (Encoding::CompatibilityError)
-    # 
-    # У меня нет других вариантов, почему строка с ошибкой 
-    # получается хрен знает в какой кодировке и в консоль 
-    # попадает (если не отловить ошибку запроса) с крякозябрами.
     $stderr.puts error_message
-    begin
-      $stderr.puts "Ошибка: #{ e.message }"
-    rescue
-      $stderr.puts "Ошибка отправки HTTP запроса."
-    end
+    $stderr.puts "Ошибка: #{ get_error_message(e, "Неизвестная ошибка") }"
     return nil
   end
   
@@ -579,7 +604,7 @@ def save_binary_file(file_name, data)
     }
   rescue Exception => e
     $stderr.puts "Не удалось сохранить файл: #{ file_name }"
-    $stderr.puts "Ошибка: #{ e.message }"
+    $stderr.puts "Ошибка: #{ get_error_message(e, "Неизвестная ошибка") }"
     
     # Нет, всё плохо...
     rc = false
@@ -608,7 +633,7 @@ def save_unicode_text_file(file_name, data)
     }
   rescue Exception => e
     $stderr.puts "Не удалось сохранить файл: #{ file_name }"
-    $stderr.puts "Ошибка: #{ e.message }"
+    $stderr.puts "Ошибка: #{ get_error_message(e, "Неизвестная ошибка") }"
     
     # Нет, всё плохо...
     rc = false
