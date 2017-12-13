@@ -2,7 +2,9 @@
 
 #====================================================================
 # AJPapps - VB string functions
+# 
 # Линда Кайе 2017. Посвящается Ариэль
+#====================================================================
 # 
 # Этот скрипт содержит Ruby модуль со строковыми функциями в стиле 
 # Visual Basic 6. Я написала его в основном в учебных целях, а также 
@@ -41,6 +43,11 @@
 # 
 # • 24.02.2017
 #   Первая публичная версия ^^
+# 
+# • 13.12.2017
+#   [-] Функции split() и split() работали в отрыве VB реалий. 
+#       Исправлена куча моментов, когда параметры интерпретировались 
+#       не так, как в VB.
 # 
 #====================================================================
 # Маленький копирайт
@@ -393,36 +400,74 @@ module VB
   #------------------------------------------------------------------
   # Function Split(Expression As String, [Delimiter], [Limit As Long = -1], [Compare As VbCompareMethod = vbBinaryCompare])
   # 
-  # String array. If Expression is a zero-length string (""), Split 
-  # returns a single-element array containing a zero-length string. 
-  # If Delimiter is a zero-length string, or if it does not appear 
-  # anywhere in Expression, Split returns a single-element array 
-  # containing the entire Expression string.
+  # From VBA
+  # --------
+  # 
+  # Returns a zero-based, one-dimensional array containing 
+  # a specified number of substrings.
+  # 
+  # expression - Required. String expression containing substrings 
+  #              and delimiters. If expression is a zero-length 
+  #              string(""), Split returns an empty array, that is, 
+  #              an array with no elements and no data.
+  # 
+  # delimiter  - Optional. String character used to identify 
+  #              substring limits. If omitted, the space character 
+  #              (" ") is assumed to be the delimiter. If delimiter 
+  #              is a zero-length string, a single-element array 
+  #              containing the entire expression string is returned.
+  # 
+  # limit      - Optional. Number of substrings to be returned; 
+  #              –1 indicates that all substrings are returned.
+  # 
+  # compare    - Optional. Numeric value indicating the kind of 
+  #              comparison to use when evaluating substrings. 
+  #              See Settings section for values. 
   #------------------------------------------------------------------
   def VB.split2(text, delimiter, limit, textcompare = false)
-    # Если у нас строка пустая, возвращаем пустую строку в массиве...
-    if text.empty? then
-      return [""]
+    # Если лимит меньше минус одного, то возвращаем пустой массив.
+    # VB возвращает ошибку...
+    if limit < -1 then
+      return []
     end
     
-    # Если лимит - ноль или меньше - возвращаем пустой массив...
-    if limit <= 0 then
-      return []
+    # Если лимит - минус один, то указываем его как размер строки 
+    # плюс несколько символов, чтобы оно заведомо было больше...
+    if limit == -1 then
+      limit = limit + 10
     end
     
     # Копируем строку, чтобы не работать со ссылкой...
     text = String.new(text)
     
-    # Если лимит - 1, то возвращаем один элемент со всей строкой...
-    if limit == 1 then
+    # Если разделитель пуст, то возвращаем всю строку элементом 
+    # массива. На самом деле не важно, строка у нас пустая или нет: 
+    # если она пустая, то возвращается пустой элемент в массиве, 
+    # тоесть та же строка...
+    if delimiter.empty? then
       return [text]
     end
     
-    # Если разделитель пустой, то возвращаем всю строку одним 
-    # элементом массива...
-    if delimiter.length == 0 then
+    # Если у нас строка пустая, возвращаем пустой массив...
+    if text.empty? then
+      return []
+    end
+    
+    # Если лимит - ноль и разделитель не пустой, возвращаем пустой 
+    # массив... Случаи, когда разделитель пуст, обрабатываются 
+    # в условии выше...
+    if limit == 0 and not delimiter.empty? then
+      return []
+    end
+    
+    # Если лимит - один, а текст не пуст, то возвращаем один элемент 
+    # со всей строкой...
+    if limit == 1 and not text.empty? then
       return [text]
     end
+    
+    # Пипец разветвлённая логика!
+    # =_=
     
     # Создаём пустой массив, который будем заполнять...
     arr = []
@@ -494,8 +539,7 @@ module VB
   end
   
   def VB.split(text, delimiter, textcompare = false)
-    # Лимит указываем как заведомо больший, чем количество символов!
-    return split2(text, delimiter, text.length + 10, textcompare)
+    return split2(text, delimiter, -1, textcompare)
   end
   
   #------------------------------------------------------------------
