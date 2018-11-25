@@ -19,5 +19,7 @@ Desktop.ini
 # Windows shortcuts
 *.lnk
 
-# Notepad++ backups...
+# Backups...
 nppBackup/
+*.BAK
+*.BAK??

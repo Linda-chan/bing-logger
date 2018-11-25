@@ -27,22 +27,7 @@ RC_PICTURE_FILE_OR_DESCRIPTION_FILE = 5
 
 #====================================================================
 def get_user_agent()
-  case rand(1 .. 7)
-    when 1
-      return "Mozilla/5.0 (Windows NT 5.1; rv:36.0) Gecko/20100101 Firefox/36.0 SeaMonkey/2.33.1"
-    when 2
-      return "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
-    when 3
-      return "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)"
-    when 4
-      return "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko"
-    when 5
-      return "Opera/9.80 (Windows NT 6.2; WOW64) Presto/2.12.388 Version/12.17"
-    when 6
-      return "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:30.0) Gecko/20100101 Firefox/30.0"
-    else
-      return "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36"
-  end
+  return "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
 end
 
 #=====================================================================
