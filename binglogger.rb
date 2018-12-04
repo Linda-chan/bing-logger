@@ -9,6 +9,7 @@ require "openssl"
 require "date"
 
 require_relative "vb"
+require_relative "rnd"
 
 # Для show_copyright()...
 APP_TITLE = "AJPapps - Bing logger Ruby ver."
@@ -27,6 +28,10 @@ RC_PICTURE_FILE_OR_DESCRIPTION_FILE = 5
 
 #====================================================================
 def get_user_agent()
+  # Для отладки. Для этого юзерагента Бинг выдаёт страницу без 
+  # описания! Не знаю, почему...
+  #return "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
+  
   return "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
 end
 
@@ -192,7 +197,8 @@ def get_picture_url_and_description(ua)
   page_source = get_page_by_url("http://bing.com", ua,
                                 "Не удалось получить главную страницу Bing.")
   if page_source.nil? then
-    return nil
+    # В случае ошибки возвращаем две пустые строки...
+    return "", ""
   end
   
   # Без этого потом будут ошибки! Текст на Бинге - в UTF-8, а не 
@@ -209,12 +215,10 @@ def get_picture_url_and_description(ua)
   #puts "picture_url ==> #{ picture_url }"
   #puts "description ==> #{ description }"
   
-  # Если вернулась хоть одна пустая строка, то возвращаем nil.
-  if picture_url.empty? or description.empty? then
-    return nil
-  else
-    return picture_url, description
-  end
+  # Раньше возвращались nil, но теперь возвращаем всё, как есть. 
+  # А смысл, если проверка всё равно вовне идёт и (по факту) по той 
+  # же пустой строке...
+  return picture_url, description
 end
 
 #====================================================================
@@ -240,9 +244,14 @@ def parse_html_ang_get_picture_url(page_source)
   
   # Если ничего не нашлось, пора писать мне!
   if txt.empty? then
+    dump_file_name = dump_source_html(page_source)
+    
     $stderr.puts "Не удалось найти ссылку на картинку на главной странице Bing."
-    $stderr.puts "Должно быть, опять что-то поменяли."
-    $stderr.puts "Сообщите об этом автору."
+    $stderr.puts "Должно быть, опять что-то поменяли. Сообщите об этом автору."
+    if not dump_file_name.nil? then
+      $stderr.puts "Исходная страница сохранена в файл: #{ dump_file_name }"
+    end
+    
     return ""
   end
   
@@ -285,9 +294,14 @@ def parse_html_ang_get_description(page_source)
   
   # Если ничего не нашлось, пора писать мне!
   if txt.empty? then
+    dump_file_name = dump_source_html(page_source)
+    
     $stderr.puts "Не удалось найти описание картинки на главной странице Bing."
-    $stderr.puts "Должно быть, опять что-то поменяли."
-    $stderr.puts "Сообщите об этом автору."
+    $stderr.puts "Должно быть, опять что-то поменяли. Сообщите об этом автору."
+    if not dump_file_name.nil? then
+      $stderr.puts "Исходная страница сохранена в файл: #{ dump_file_name }"
+    end
+    
     return ""
   end
   
@@ -373,6 +387,24 @@ def get_txt_file_name(save_path, picture_url)
 end
 
 #====================================================================
+def dump_source_html(page_source)
+  # Имя временного файла в стиле VBScript...
+  file_name = "rad#{ Rnd.get_hex(5) }.tmp.html"
+  file_name = File.join(ENV["tmp"], file_name)
+  
+  # Debug!
+  #puts file_name
+  
+  # Пытаемся сохранить файл.
+  # Внимание! Сообщение об ошибке выдаётся внутри этой функции =_=
+  if not save_binary_file(file_name, page_source) then
+    file_name = nil
+  end
+  
+  return file_name
+end
+
+#====================================================================
 def save_jpg_and_description_file(save_path, jpg_data, picture_url, description)
   # Получаем имена нужных файлов...
   file_name_jpg = get_jpg_file_name(save_path, picture_url)
@@ -388,6 +420,7 @@ def save_jpg_and_description_file(save_path, jpg_data, picture_url, description)
   # знал, что именно не сохранилось, и не сообщал о сохранении этх 
   # файлов. А то сначала сообщение об ошибке, а потом - "Картинка 
   # сохранена в файл"...
+  # Внимание! Сообщение об ошибке выдаётся внутри этой функции =_=
   if not save_binary_file(file_name_jpg, jpg_data) then
     file_name_jpg = nil
   end
@@ -401,6 +434,7 @@ def save_jpg_and_description_file(save_path, jpg_data, picture_url, description)
         "Save time:   #{ Time.now.strftime("%-d.%m.%Y %-I:%M:%S %p %:z") }"
   
   # Пытаемся сохранить описание...
+  # Внимание! Сообщение об ошибке выдаётся внутри этой функции =_=
   if not save_unicode_text_file(file_name_txt, txt) then
     file_name_txt = nil
   end
@@ -488,10 +522,12 @@ def main()
     puts "Каталог назначения: #{ save_path }"
   end
   
-  # Получаем URL картинки и оаписание. В VB вторая переменная шла 
+  # Получаем URL картинки и описание. В VB вторая переменная шла 
   # ByRef параметром, но у нас же Руби!
   picture_url, description = get_picture_url_and_description(ua)
-  if picture_url.nil? or description.nil? then
+  if picture_url.empty? then
+    # Если URL картинки не найден, то и возвращать нечего. Раньше 
+    # проверялось и описание, но глупо не сохранить ничего!
     return RC_PICTURE_URL_OR_DESCRIPTION
   end
   
