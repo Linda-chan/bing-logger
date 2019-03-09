@@ -208,27 +208,30 @@ def get_picture_url_and_description(ua)
   page_source = page_source.force_encoding("UTF-8")
   
   # Потом парсим полученные данные.
-  picture_url = parse_html_ang_get_picture_url(page_source)
+  picture_url, file_name = parse_html_ang_get_picture_url(page_source)
   description = parse_html_ang_get_description(page_source)
   
   # Debug!
   #puts "picture_url ==> #{ picture_url }"
+  #puts "file_name   ==> #{ file_name   }"
   #puts "description ==> #{ description }"
   
   # Раньше возвращались nil, но теперь возвращаем всё, как есть. 
   # А смысл, если проверка всё равно вовне идёт и (по факту) по той 
   # же пустой строке...
-  return picture_url, description
+  return picture_url, file_name, description
 end
 
 #====================================================================
 def parse_html_ang_get_picture_url(page_source)
   # Ищем вот это:
   # {url: "/az/hprichbg/rb/DwarfFlyingSquirrel_ROW13092252189_1366x768.jpg"
+  # {url: "/th?id=OHR.GrapeHarvest_ROW5367417225_1920x1080.jpg
   # 
   # String.match принимает строку и правильно переделывает её 
   # в регэксп - нам даже на слэши смотреть не надо!
-  mc = page_source.match( "{url: \"(/az/hprichbg/rb/.*?)\"" )
+  #mc = page_source.match( "{url: \"(/az/hprichbg/rb/.*?)\"" )
+  mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?\\.jpg))" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
@@ -237,7 +240,7 @@ def parse_html_ang_get_picture_url(page_source)
   # Пытаемся взять первое подсовпадение. 0 - это весь кусок целиком, 
   # 1 - первая скобочка. Удобно!
   if not mc.nil? then
-    if mc.length == 2 then
+    if mc.length >= 2 then
       txt = mc[1]
     end
   end
@@ -256,7 +259,7 @@ def parse_html_ang_get_picture_url(page_source)
   end
   
   # Заменяем заэкранированные слэши...
-  txt = VB.replace(txt, "\/", "/")
+  txt = VB.replace(txt, "\\/", "/")
   
   # Адрес картинки может выглядеть по-разному, но мне встречались 
   # только два последних ^^'
@@ -349,6 +352,36 @@ def get_jpg_data(picture_url, ua)
 end
 
 #====================================================================
+def get_file_name_from_search_url(url)
+  # Ищем вот это:
+  # /th?id=OHR.GrapeHarvest_ROW5367417225_1920x1080.jpg
+  mc = url.match( "^th\\?id=OHR\\.(.*?)$" )
+  
+  # Заранее делаем вид, что получилась пустая строка. Эта переменная 
+  # получит значение только если регэксп сработал.
+  txt = ""
+  
+  # Пытаемся взять первое подсовпадение. 0 - это весь кусок целиком, 
+  # 1 - первая скобочка. Удобно!
+  if not mc.nil? then
+    if mc.length >= 2 then
+      txt = mc[1]
+    end
+  end
+  
+  # Debug!
+  #puts "url ==> #{ url }"
+  #puts "txt ==> #{ txt }"
+  
+  # Если ничего не нашлось, возвращаем как есть!
+  if txt.empty? then
+    return url
+  else
+    return txt
+  end
+end
+
+#====================================================================
 def get_jpg_file_name(save_path, picture_url)
   # Новая система средствами Руби! Сначала разбиваем URL на путь 
   # и имя файла! Это работает OO
@@ -360,6 +393,9 @@ def get_jpg_file_name(save_path, picture_url)
     picture_url = "picture.jpg"
   end
   
+  # Фиксим новый формат URL с вопросительным знаком...
+  picture_url = get_file_name_from_search_url(picture_url)
+  
   # Теперь объединяем с каталогом, если каталог, конечно, есть. 
   # Если нет, то будет что-то вроде "/file.jpg"...
   if not save_path.empty? then
@@ -369,6 +405,7 @@ def get_jpg_file_name(save_path, picture_url)
   end
 end
 
+#====================================================================
 def get_txt_file_name(save_path, picture_url)
   # Не будем изобретать велосипед, а возьмём имя JPG файла и просто 
   # поменяем ему расширение...
@@ -532,7 +569,7 @@ def main()
   
   # Получаем URL картинки и описание. В VB вторая переменная шла 
   # ByRef параметром, но у нас же Руби!
-  picture_url, description = get_picture_url_and_description(ua)
+  picture_url, file_name, description = get_picture_url_and_description(ua)
   if picture_url.empty? then
     # Если URL картинки не найден, то и возвращать нечего. Раньше 
     # проверялось и описание, но глупо не сохранить ничего!
