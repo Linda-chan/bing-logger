@@ -13,7 +13,7 @@ require_relative "rnd"
 
 # Для show_copyright()...
 APP_TITLE = "AJPapps - Bing logger Ruby ver."
-APP_COPYRIGHT = "Линда Кайе 2017-2018. Посвящается Ариэль"
+APP_COPYRIGHT = "Линда Кайе 2017-2019. Посвящается Ариэль"
 
 # Грязный хак!
 BOM = "\xff\xfe".force_encoding("UTF-16LE")
