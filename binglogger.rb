@@ -388,9 +388,17 @@ end
 
 #====================================================================
 def dump_source_html(page_source)
+  temp_path = "#{ ENV["tmp"] }"
+  if temp_path.empty? then
+    temp_path = "#{ ENV["tmp"] }"
+  end
+  if temp_path.empty? then
+    temp_path = "/tmp"
+  end
+  
   # Имя временного файла в стиле VBScript...
   file_name = "rad#{ Rnd.get_hex(5) }.tmp.html"
-  file_name = File.join(ENV["tmp"], file_name)
+  file_name = File.join(temp_path, file_name)
   
   # Debug!
   #puts file_name
