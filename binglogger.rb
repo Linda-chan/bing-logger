@@ -231,7 +231,8 @@ def parse_html_ang_get_picture_url(page_source)
   # String.match принимает строку и правильно переделывает её 
   # в регэксп - нам даже на слэши смотреть не надо!
   #mc = page_source.match( "{url: \"(/az/hprichbg/rb/.*?)\"" )
-  mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?\\.jpg))" )
+  #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?\\.jpg))" )
+  mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
@@ -258,8 +259,9 @@ def parse_html_ang_get_picture_url(page_source)
     return ""
   end
   
-  # Заменяем заэкранированные слэши...
+  # Заменяем заэкранированные слэши и амперсанды...
   txt = VB.replace(txt, "\\/", "/")
+  txt = VB.replace(txt, "\\u0026", "&")
   
   # Адрес картинки может выглядеть по-разному, но мне встречались 
   # только два последних ^^'
@@ -355,7 +357,7 @@ end
 def get_file_name_from_search_url(url)
   # Ищем вот это:
   # /th?id=OHR.GrapeHarvest_ROW5367417225_1920x1080.jpg
-  mc = url.match( "^th\\?id=OHR\\.(.*?)$" )
+  mc = url.match( "^th\\?id=OHR\\.(.*?\\.jpg)" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
