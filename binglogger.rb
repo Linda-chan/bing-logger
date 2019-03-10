@@ -208,7 +208,7 @@ def get_picture_url_and_description(ua)
   page_source = page_source.force_encoding("UTF-8")
   
   # Потом парсим полученные данные.
-  picture_url, file_name = parse_html_ang_get_picture_url(page_source)
+  picture_url = parse_html_ang_get_picture_url(page_source)
   description = parse_html_ang_get_description(page_source)
   
   # Debug!
@@ -219,7 +219,7 @@ def get_picture_url_and_description(ua)
   # Раньше возвращались nil, но теперь возвращаем всё, как есть. 
   # А смысл, если проверка всё равно вовне идёт и (по факту) по той 
   # же пустой строке...
-  return picture_url, file_name, description
+  return picture_url, description
 end
 
 #====================================================================
@@ -571,7 +571,7 @@ def main()
   
   # Получаем URL картинки и описание. В VB вторая переменная шла 
   # ByRef параметром, но у нас же Руби!
-  picture_url, file_name, description = get_picture_url_and_description(ua)
+  picture_url, description = get_picture_url_and_description(ua)
   if picture_url.empty? then
     # Если URL картинки не найден, то и возвращать нечего. Раньше 
     # проверялось и описание, но глупо не сохранить ничего!
