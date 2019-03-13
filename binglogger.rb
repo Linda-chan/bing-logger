@@ -232,7 +232,8 @@ def parse_html_ang_get_picture_url(page_source)
   # в регэксп - нам даже на слэши смотреть не надо!
   #mc = page_source.match( "{url: \"(/az/hprichbg/rb/.*?)\"" )
   #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?\\.jpg))" )
-  mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
+  #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
+  mc = page_source.match( "{url:\\s*?\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
