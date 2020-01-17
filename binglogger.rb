@@ -175,7 +175,7 @@ def get_page_by_url(target_url, ua, error_message, redirect_limit = 10)
   end
   
   # Если у нас редирект, повторяем запрос...
-  if res.code == "301" then
+  if res.code == "301" or res.code == "302" then
     return get_page_by_url(res["location"], ua, error_message, redirect_limit - 1)
   end
   
