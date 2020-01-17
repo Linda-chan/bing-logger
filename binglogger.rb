@@ -225,16 +225,13 @@ end
 
 #====================================================================
 def parse_html_ang_get_picture_url(page_source)
-  # Ищем вот это:
-  # {url: "/az/hprichbg/rb/DwarfFlyingSquirrel_ROW13092252189_1366x768.jpg"
-  # {url: "/th?id=OHR.GrapeHarvest_ROW5367417225_1920x1080.jpg
-  # 
   # String.match принимает строку и правильно переделывает её 
   # в регэксп - нам даже на слэши смотреть не надо!
   #mc = page_source.match( "{url: \"(/az/hprichbg/rb/.*?)\"" )
   #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?\\.jpg))" )
   #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
-  mc = page_source.match( "{url:\\s*?\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
+  #mc = page_source.match( "{url:\\s*?\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
+  mc = page_source.match( "{\"Url\":\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
@@ -280,12 +277,10 @@ end
 
 #====================================================================
 def parse_html_ang_get_description(page_source)
-  # Ищем вот это:
-  # "copyright":"Cattle egrets atop a Burchell (© Richard)"
-  # 
   # String.match принимает строку и правильно переделывает её 
   # в регэксп - нам даже на слэши смотреть не надо!
-  mc = page_source.match( "\"copyright\":\"(.*?)\"" )
+  #mc = page_source.match( "\"copyright\":\"(.*?)\"" )
+  mc = page_source.match( "\"Title\":\"(.*?)\",\"Copyright\":\"(.*?)\"" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
@@ -294,8 +289,12 @@ def parse_html_ang_get_description(page_source)
   # Пытаемся взять первое подсовпадение. 0 - это весь кусок целиком, 
   # 1 - первая скобочка. Удобно!
   if not mc.nil? then
-    if mc.length == 2 then
-      txt = mc[1]
+    if mc.length == 3 then
+      # Теперь описание разделено на два поля в целях стилизации 
+      # на странице. Поэтому мы собираем оба и делаем, как было 
+      # раньше. Тоесть тут в будущем поменять, возможно, придётся 
+      # не только регэксп, но и вот это...
+      txt = "#{ mc[1] } (#{ mc[2] })"
     end
   end
   
