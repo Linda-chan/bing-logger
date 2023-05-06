@@ -13,7 +13,7 @@ require_relative "rnd"
 
 # Для show_copyright()...
 APP_TITLE = "AJPapps - Bing logger Ruby ver."
-APP_COPYRIGHT = "Линда Кайе 2017-2020. Посвящается Ариэль"
+APP_COPYRIGHT = "Линда Кайе 2017-2023. Посвящается Ариэль"
 
 # Грязный хак!
 BOM = "\xff\xfe".force_encoding("UTF-16LE")
@@ -33,7 +33,8 @@ def get_user_agent()
   #return "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
   
   #return "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
-  return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.100 Safari/537.36"
+  #return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.100 Safari/537.36"
+  return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
 end
 
 #=====================================================================
@@ -231,7 +232,8 @@ def parse_html_ang_get_picture_url(page_source)
   #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?\\.jpg))" )
   #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
   #mc = page_source.match( "{url:\\s*?\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
-  mc = page_source.match( "{\"Url\":\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"" )
+  #mc = page_source.match( "{\"Url\":\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"" )
+  mc = page_source.match( "(/th\\?id=OHR\\.([\\w\\.]*?\\.jpg)\\\\u0026.*?)\"" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
