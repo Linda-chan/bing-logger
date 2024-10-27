@@ -1,4 +1,4 @@
-#!/usr/local/bin/run_ruby_script_in_rvm
+#!/usr/bin/ruby
 
 # Documentation:
 # https://ruby-doc.org/stdlib-2.2.0/libdoc/net/http/rdoc/Net/HTTP.html
@@ -234,7 +234,8 @@ def parse_html_ang_get_picture_url(page_source)
   #mc = page_source.match( "{url: \"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
   #mc = page_source.match( "{url:\\s*?\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"}" )
   #mc = page_source.match( "{\"Url\":\"(/th\\?id=OHR\\.(.*?)\\\\u0026.*?)\"" )
-  mc = page_source.match( "(/th\\?id=OHR\\.([\\w\\.]*?\\.jpg)\\\\u0026.*?)\"" )
+  #mc = page_source.match( "(/th\\?id=OHR\\.([\\w\\.]*?\\.jpg)\\\\u0026.*?)\"" )
+  mc = page_source.match( "(/th\\?id=OHR\\.([\\w\\.-]*?\\.jpg)\\\\u0026.*?)\"" )
   
   # Заранее делаем вид, что получилась пустая строка. Эта переменная 
   # получит значение только если регэксп сработал.
@@ -247,6 +248,10 @@ def parse_html_ang_get_picture_url(page_source)
       txt = mc[1]
     end
   end
+  
+  # Debug!
+  #dump_file_name = dump_source_html(page_source)
+  #$stderr.puts "Дебаг дамп: #{ dump_file_name }"
   
   # Если ничего не нашлось, пора писать мне!
   if txt.empty? then
